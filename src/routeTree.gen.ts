@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as DatabasesRouteImport } from './routes/databases'
 import { Route as EnvironmentsRouteImport } from './routes/environments'
 import { Route as SystemsIndexRouteImport } from './routes/systems.index'
 import { Route as SystemsSystemIdRouteImport } from './routes/systems.$systemId'
@@ -17,6 +18,11 @@ import { Route as SystemsSystemIdRouteImport } from './routes/systems.$systemId'
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DatabasesRoute = DatabasesRouteImport.update({
+  id: '/databases',
+  path: '/databases',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EnvironmentsRoute = EnvironmentsRouteImport.update({
@@ -37,12 +43,14 @@ const SystemsSystemIdRoute = SystemsSystemIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/databases': typeof DatabasesRoute
   '/environments': typeof EnvironmentsRoute
   '/systems/$systemId': typeof SystemsSystemIdRoute
   '/systems/': typeof SystemsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/databases': typeof DatabasesRoute
   '/environments': typeof EnvironmentsRoute
   '/systems/$systemId': typeof SystemsSystemIdRoute
   '/systems': typeof SystemsIndexRoute
@@ -50,20 +58,29 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/databases': typeof DatabasesRoute
   '/environments': typeof EnvironmentsRoute
   '/systems/$systemId': typeof SystemsSystemIdRoute
   '/systems/': typeof SystemsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/environments' | '/systems/$systemId' | '/systems/'
+  fullPaths:
+    '/' | '/databases' | '/environments' | '/systems/$systemId' | '/systems/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/environments' | '/systems/$systemId' | '/systems'
-  id: '__root__' | '/' | '/environments' | '/systems/$systemId' | '/systems/'
+  to: '/' | '/databases' | '/environments' | '/systems/$systemId' | '/systems'
+  id:
+    | '__root__'
+    | '/'
+    | '/databases'
+    | '/environments'
+    | '/systems/$systemId'
+    | '/systems/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  DatabasesRoute: typeof DatabasesRoute
   EnvironmentsRoute: typeof EnvironmentsRoute
   SystemsSystemIdRoute: typeof SystemsSystemIdRoute
   SystemsIndexRoute: typeof SystemsIndexRoute
@@ -76,6 +93,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/databases': {
+      id: '/databases'
+      path: '/databases'
+      fullPath: '/databases'
+      preLoaderRoute: typeof DatabasesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/environments': {
@@ -104,6 +128,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  DatabasesRoute: DatabasesRoute,
   EnvironmentsRoute: EnvironmentsRoute,
   SystemsSystemIdRoute: SystemsSystemIdRoute,
   SystemsIndexRoute: SystemsIndexRoute,
