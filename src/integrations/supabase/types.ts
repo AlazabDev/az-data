@@ -2329,6 +2329,57 @@ export type Database = {
         }
         Relationships: []
       }
+      storage_endpoints: {
+        Row: {
+          created_at: string
+          default_bucket: string | null
+          endpoint_url: string
+          id: string
+          is_active: boolean
+          key: string
+          label: string
+          notes: string | null
+          path_style: boolean
+          provider: string
+          region: string
+          secret_prefix: string
+          signature_version: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          default_bucket?: string | null
+          endpoint_url: string
+          id?: string
+          is_active?: boolean
+          key: string
+          label: string
+          notes?: string | null
+          path_style?: boolean
+          provider?: string
+          region?: string
+          secret_prefix: string
+          signature_version?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          default_bucket?: string | null
+          endpoint_url?: string
+          id?: string
+          is_active?: boolean
+          key?: string
+          label?: string
+          notes?: string | null
+          path_style?: boolean
+          provider?: string
+          region?: string
+          secret_prefix?: string
+          signature_version?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       subscriptions: {
         Row: {
           branches_count: number | null
