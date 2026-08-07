@@ -7,12 +7,15 @@ import {
   LayoutDashboard,
   Loader2,
   LogOut,
+  Moon,
   Plug,
   ScrollText,
   ShieldCheck,
+  Sun,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
+import { useTheme } from "@/lib/theme";
 import { AuthPanel } from "@/components/AuthPanel";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -40,6 +43,7 @@ export function AppShell({
 }) {
   const { user, loading, signOut, roles } = useAuth();
   const { t, te, lang, setLang } = useI18n();
+  const { resolved, setTheme } = useTheme();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   if (loading) {
@@ -108,6 +112,14 @@ export function AppShell({
             </div>
             <div className="flex items-center gap-2">
               {actions}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setTheme(resolved === "dark" ? "light" : "dark")}
+                aria-label={resolved === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+              >
+                {resolved === "dark" ? <Sun className="size-4" /> : <Moon className="size-4" />}
+              </Button>
               <Button
                 variant="outline"
                 size="sm"

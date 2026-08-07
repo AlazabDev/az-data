@@ -31,9 +31,7 @@ const ROLES: AppRole[] = [
   "platform_admin",
   "database_administrator",
   "data_engineer",
-  "application_owner",
-  "integration_manager",
-  "analyst",
+  "data_analyst",
   "read_only",
 ];
 
@@ -44,10 +42,10 @@ function AccessPage() {
   const { t, lang } = useI18n();
   const { roles: myRoles } = useAuth();
   const isOwner = myRoles.includes("platform_owner") || myRoles.includes("platform_admin");
-  const profiles = useRows<ProfileRow>("profiles", "created_at", true);
-  const userRoles = useRows<RoleRow>("user_roles", "created_at", true);
-  const saveRole = useSaveRow("user_roles");
-  const removeRole = useDeleteRow("user_roles");
+  const profiles = useRows<ProfileRow>("adp_profiles", "created_at", true);
+  const userRoles = useRows<RoleRow>("adp_user_roles", "created_at", true);
+  const saveRole = useSaveRow("adp_user_roles");
+  const removeRole = useDeleteRow("adp_user_roles");
   return (
     <AppShell title={t("nav_access")}>
       {!isOwner ? (

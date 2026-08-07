@@ -45,7 +45,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     let cancelled = false;
     void supabase
-      .from("user_roles")
+      .from("adp_user_roles")
       .select("role")
       .eq("user_id", uid)
       .then(({ data }) => {
