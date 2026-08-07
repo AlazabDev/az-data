@@ -275,6 +275,8 @@ export type Database = {
           actor_email: string | null
           actor_id: string | null
           created_at: string
+          entity_label: string | null
+          entity_type: string | null
           id: string
           new_data: Json | null
           old_data: Json | null
@@ -286,6 +288,8 @@ export type Database = {
           actor_email?: string | null
           actor_id?: string | null
           created_at?: string
+          entity_label?: string | null
+          entity_type?: string | null
           id?: string
           new_data?: Json | null
           old_data?: Json | null
@@ -297,6 +301,8 @@ export type Database = {
           actor_email?: string | null
           actor_id?: string | null
           created_at?: string
+          entity_label?: string | null
+          entity_type?: string | null
           id?: string
           new_data?: Json | null
           old_data?: Json | null
@@ -661,42 +667,51 @@ export type Database = {
       }
       data_sources: {
         Row: {
+          code: string | null
           created_at: string
           endpoint: string | null
           health: Database["public"]["Enums"]["health_status"]
           id: string
           kind: Database["public"]["Enums"]["datasource_kind"]
+          location: string | null
           name: string
           notes: string | null
           region: string | null
           status: Database["public"]["Enums"]["lifecycle_status"]
           system_id: string | null
+          technical_owner: string | null
           updated_at: string
         }
         Insert: {
+          code?: string | null
           created_at?: string
           endpoint?: string | null
           health?: Database["public"]["Enums"]["health_status"]
           id?: string
           kind?: Database["public"]["Enums"]["datasource_kind"]
+          location?: string | null
           name: string
           notes?: string | null
           region?: string | null
           status?: Database["public"]["Enums"]["lifecycle_status"]
           system_id?: string | null
+          technical_owner?: string | null
           updated_at?: string
         }
         Update: {
+          code?: string | null
           created_at?: string
           endpoint?: string | null
           health?: Database["public"]["Enums"]["health_status"]
           id?: string
           kind?: Database["public"]["Enums"]["datasource_kind"]
+          location?: string | null
           name?: string
           notes?: string | null
           region?: string | null
           status?: Database["public"]["Enums"]["lifecycle_status"]
           system_id?: string | null
+          technical_owner?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -712,55 +727,76 @@ export type Database = {
       databases: {
         Row: {
           backup_enabled: boolean
+          backup_required: boolean | null
+          business_owner: string | null
+          code: string | null
           created_at: string
           engine: string
+          engine_version: string | null
           environment_id: string | null
           health: Database["public"]["Enums"]["health_status"]
           host: string | null
           id: string
           last_backup_at: string | null
+          last_health_check_at: string | null
           name: string
           notes: string | null
           port: number | null
+          restore_verified: boolean | null
           status: Database["public"]["Enums"]["lifecycle_status"]
           system_id: string | null
           target_version: string | null
+          technical_owner: string | null
           updated_at: string
           version: string | null
         }
         Insert: {
           backup_enabled?: boolean
+          backup_required?: boolean | null
+          business_owner?: string | null
+          code?: string | null
           created_at?: string
           engine?: string
+          engine_version?: string | null
           environment_id?: string | null
           health?: Database["public"]["Enums"]["health_status"]
           host?: string | null
           id?: string
           last_backup_at?: string | null
+          last_health_check_at?: string | null
           name: string
           notes?: string | null
           port?: number | null
+          restore_verified?: boolean | null
           status?: Database["public"]["Enums"]["lifecycle_status"]
           system_id?: string | null
           target_version?: string | null
+          technical_owner?: string | null
           updated_at?: string
           version?: string | null
         }
         Update: {
           backup_enabled?: boolean
+          backup_required?: boolean | null
+          business_owner?: string | null
+          code?: string | null
           created_at?: string
           engine?: string
+          engine_version?: string | null
           environment_id?: string | null
           health?: Database["public"]["Enums"]["health_status"]
           host?: string | null
           id?: string
           last_backup_at?: string | null
+          last_health_check_at?: string | null
           name?: string
           notes?: string | null
           port?: number | null
+          restore_verified?: boolean | null
           status?: Database["public"]["Enums"]["lifecycle_status"]
           system_id?: string | null
           target_version?: string | null
+          technical_owner?: string | null
           updated_at?: string
           version?: string | null
         }
@@ -783,6 +819,7 @@ export type Database = {
       }
       environments: {
         Row: {
+          code: string | null
           created_at: string
           health: Database["public"]["Enums"]["health_status"]
           id: string
@@ -795,6 +832,7 @@ export type Database = {
           url: string | null
         }
         Insert: {
+          code?: string | null
           created_at?: string
           health?: Database["public"]["Enums"]["health_status"]
           id?: string
@@ -807,6 +845,7 @@ export type Database = {
           url?: string | null
         }
         Update: {
+          code?: string | null
           created_at?: string
           health?: Database["public"]["Enums"]["health_status"]
           id?: string
@@ -2345,36 +2384,51 @@ export type Database = {
       }
       systems: {
         Row: {
+          business_owner: string | null
+          code: string | null
           created_at: string
           criticality: Database["public"]["Enums"]["criticality_level"]
           description: string | null
           health: Database["public"]["Enums"]["health_status"]
           id: string
           name: string
+          operational_notes: string | null
           owner: string | null
+          purpose: string | null
           status: Database["public"]["Enums"]["lifecycle_status"]
+          technical_owner: string | null
           updated_at: string
         }
         Insert: {
+          business_owner?: string | null
+          code?: string | null
           created_at?: string
           criticality?: Database["public"]["Enums"]["criticality_level"]
           description?: string | null
           health?: Database["public"]["Enums"]["health_status"]
           id?: string
           name: string
+          operational_notes?: string | null
           owner?: string | null
+          purpose?: string | null
           status?: Database["public"]["Enums"]["lifecycle_status"]
+          technical_owner?: string | null
           updated_at?: string
         }
         Update: {
+          business_owner?: string | null
+          code?: string | null
           created_at?: string
           criticality?: Database["public"]["Enums"]["criticality_level"]
           description?: string | null
           health?: Database["public"]["Enums"]["health_status"]
           id?: string
           name?: string
+          operational_notes?: string | null
           owner?: string | null
+          purpose?: string | null
           status?: Database["public"]["Enums"]["lifecycle_status"]
+          technical_owner?: string | null
           updated_at?: string
         }
         Relationships: []
