@@ -1,13 +1,10 @@
-import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
 import { StatusPill } from "@/components/status";
-import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
 import { enumLabels, useI18n } from "@/lib/i18n";
 import { useDeleteRow, useRows, useSaveRow } from "@/lib/registry-hooks";
-import { supabase } from "@/integrations/supabase/client";
 import type { AppRole } from "@/lib/registry-types";
 
 export const Route = createFileRoute("/access")({
@@ -45,25 +42,12 @@ type RoleRow = { id: string; user_id: string; role: AppRole };
 
 function AccessPage() {
   const { t, lang } = useI18n();
-  const { roles: myRoles, user } = useAuth();
+  const { roles: myRoles } = useAuth();
   const isOwner = myRoles.includes("platform_owner") || myRoles.includes("platform_admin");
   const profiles = useRows<ProfileRow>("profiles", "created_at", true);
   const userRoles = useRows<RoleRow>("user_roles", "created_at", true);
   const saveRole = useSaveRow("user_roles");
   const removeRole = useDeleteRow("user_roles");
-  const [pending, setPending] = useState<string | null>(null);
-
-  async function claimOwnership() {
-    setPending("claim");
-    const { error } = await supabase.rpc("claim_platform_ownership");
-    setPending(null);
-    if (error) toast.error(error.message);
-    else {
-      toast.success(t("saved"));
-      window.location.reload();
-    }
-  }
-
   return (
     <AppShell title={t("nav_access")}>
       {!isOwner ? (
@@ -72,11 +56,6 @@ function AccessPage() {
         </p>
       ) : null}
 
-      {user && myRoles.length === 0 ? (
-        <Button className="mb-4" disabled={pending === "claim"} onClick={() => void claimOwnership()}>
-          {t("claim_ownership")}
-        </Button>
-      ) : null}
 
       <div className="panel overflow-x-auto">
         <table className="w-full text-sm">

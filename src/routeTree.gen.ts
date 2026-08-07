@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AccessRouteImport } from './routes/access'
 import { Route as AuditRouteImport } from './routes/audit'
 import { Route as DataSourcesRouteImport } from './routes/data-sources'
 import { Route as DatabasesRouteImport } from './routes/databases'
@@ -20,6 +21,11 @@ import { Route as SystemsSystemIdRouteImport } from './routes/systems.$systemId'
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AccessRoute = AccessRouteImport.update({
+  id: '/access',
+  path: '/access',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuditRoute = AuditRouteImport.update({
@@ -55,6 +61,7 @@ const SystemsSystemIdRoute = SystemsSystemIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/access': typeof AccessRoute
   '/audit': typeof AuditRoute
   '/data-sources': typeof DataSourcesRoute
   '/databases': typeof DatabasesRoute
@@ -64,6 +71,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/access': typeof AccessRoute
   '/audit': typeof AuditRoute
   '/data-sources': typeof DataSourcesRoute
   '/databases': typeof DatabasesRoute
@@ -74,6 +82,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/access': typeof AccessRoute
   '/audit': typeof AuditRoute
   '/data-sources': typeof DataSourcesRoute
   '/databases': typeof DatabasesRoute
@@ -85,6 +94,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/access'
     | '/audit'
     | '/data-sources'
     | '/databases'
@@ -94,6 +104,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/access'
     | '/audit'
     | '/data-sources'
     | '/databases'
@@ -103,6 +114,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/access'
     | '/audit'
     | '/data-sources'
     | '/databases'
@@ -113,6 +125,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AccessRoute: typeof AccessRoute
   AuditRoute: typeof AuditRoute
   DataSourcesRoute: typeof DataSourcesRoute
   DatabasesRoute: typeof DatabasesRoute
@@ -128,6 +141,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/access': {
+      id: '/access'
+      path: '/access'
+      fullPath: '/access'
+      preLoaderRoute: typeof AccessRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/audit': {
@@ -177,6 +197,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AccessRoute: AccessRoute,
   AuditRoute: AuditRoute,
   DataSourcesRoute: DataSourcesRoute,
   DatabasesRoute: DatabasesRoute,
