@@ -10,12 +10,18 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as EnvironmentsRouteImport } from './routes/environments'
 import { Route as SystemsIndexRouteImport } from './routes/systems.index'
 import { Route as SystemsSystemIdRouteImport } from './routes/systems.$systemId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EnvironmentsRoute = EnvironmentsRouteImport.update({
+  id: '/environments',
+  path: '/environments',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SystemsIndexRoute = SystemsIndexRouteImport.update({
@@ -31,30 +37,34 @@ const SystemsSystemIdRoute = SystemsSystemIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/environments': typeof EnvironmentsRoute
   '/systems/$systemId': typeof SystemsSystemIdRoute
   '/systems/': typeof SystemsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/environments': typeof EnvironmentsRoute
   '/systems/$systemId': typeof SystemsSystemIdRoute
   '/systems': typeof SystemsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/environments': typeof EnvironmentsRoute
   '/systems/$systemId': typeof SystemsSystemIdRoute
   '/systems/': typeof SystemsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/systems/$systemId' | '/systems/'
+  fullPaths: '/' | '/environments' | '/systems/$systemId' | '/systems/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/systems/$systemId' | '/systems'
-  id: '__root__' | '/' | '/systems/$systemId' | '/systems/'
+  to: '/' | '/environments' | '/systems/$systemId' | '/systems'
+  id: '__root__' | '/' | '/environments' | '/systems/$systemId' | '/systems/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  EnvironmentsRoute: typeof EnvironmentsRoute
   SystemsSystemIdRoute: typeof SystemsSystemIdRoute
   SystemsIndexRoute: typeof SystemsIndexRoute
 }
@@ -66,6 +76,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/environments': {
+      id: '/environments'
+      path: '/environments'
+      fullPath: '/environments'
+      preLoaderRoute: typeof EnvironmentsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/systems/': {
@@ -87,6 +104,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  EnvironmentsRoute: EnvironmentsRoute,
   SystemsSystemIdRoute: SystemsSystemIdRoute,
   SystemsIndexRoute: SystemsIndexRoute,
 }
