@@ -15,6 +15,7 @@ import { Route as AuditRouteImport } from './routes/audit'
 import { Route as DataSourcesRouteImport } from './routes/data-sources'
 import { Route as DatabasesRouteImport } from './routes/databases'
 import { Route as EnvironmentsRouteImport } from './routes/environments'
+import { Route as StorageRouteImport } from './routes/storage'
 import { Route as SystemsIndexRouteImport } from './routes/systems.index'
 import { Route as SystemsSystemIdRouteImport } from './routes/systems.$systemId'
 
@@ -48,6 +49,11 @@ const EnvironmentsRoute = EnvironmentsRouteImport.update({
   path: '/environments',
   getParentRoute: () => rootRouteImport,
 } as any)
+const StorageRoute = StorageRouteImport.update({
+  id: '/storage',
+  path: '/storage',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SystemsIndexRoute = SystemsIndexRouteImport.update({
   id: '/systems/',
   path: '/systems/',
@@ -66,6 +72,7 @@ export interface FileRoutesByFullPath {
   '/data-sources': typeof DataSourcesRoute
   '/databases': typeof DatabasesRoute
   '/environments': typeof EnvironmentsRoute
+  '/storage': typeof StorageRoute
   '/systems/$systemId': typeof SystemsSystemIdRoute
   '/systems/': typeof SystemsIndexRoute
 }
@@ -76,6 +83,7 @@ export interface FileRoutesByTo {
   '/data-sources': typeof DataSourcesRoute
   '/databases': typeof DatabasesRoute
   '/environments': typeof EnvironmentsRoute
+  '/storage': typeof StorageRoute
   '/systems/$systemId': typeof SystemsSystemIdRoute
   '/systems': typeof SystemsIndexRoute
 }
@@ -87,6 +95,7 @@ export interface FileRoutesById {
   '/data-sources': typeof DataSourcesRoute
   '/databases': typeof DatabasesRoute
   '/environments': typeof EnvironmentsRoute
+  '/storage': typeof StorageRoute
   '/systems/$systemId': typeof SystemsSystemIdRoute
   '/systems/': typeof SystemsIndexRoute
 }
@@ -99,6 +108,7 @@ export interface FileRouteTypes {
     | '/data-sources'
     | '/databases'
     | '/environments'
+    | '/storage'
     | '/systems/$systemId'
     | '/systems/'
   fileRoutesByTo: FileRoutesByTo
@@ -109,6 +119,7 @@ export interface FileRouteTypes {
     | '/data-sources'
     | '/databases'
     | '/environments'
+    | '/storage'
     | '/systems/$systemId'
     | '/systems'
   id:
@@ -119,6 +130,7 @@ export interface FileRouteTypes {
     | '/data-sources'
     | '/databases'
     | '/environments'
+    | '/storage'
     | '/systems/$systemId'
     | '/systems/'
   fileRoutesById: FileRoutesById
@@ -130,6 +142,7 @@ export interface RootRouteChildren {
   DataSourcesRoute: typeof DataSourcesRoute
   DatabasesRoute: typeof DatabasesRoute
   EnvironmentsRoute: typeof EnvironmentsRoute
+  StorageRoute: typeof StorageRoute
   SystemsSystemIdRoute: typeof SystemsSystemIdRoute
   SystemsIndexRoute: typeof SystemsIndexRoute
 }
@@ -178,6 +191,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EnvironmentsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/storage': {
+      id: '/storage'
+      path: '/storage'
+      fullPath: '/storage'
+      preLoaderRoute: typeof StorageRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/systems/': {
       id: '/systems/'
       path: '/systems'
@@ -202,19 +222,10 @@ const rootRouteChildren: RootRouteChildren = {
   DataSourcesRoute: DataSourcesRoute,
   DatabasesRoute: DatabasesRoute,
   EnvironmentsRoute: EnvironmentsRoute,
+  StorageRoute: StorageRoute,
   SystemsSystemIdRoute: SystemsSystemIdRoute,
   SystemsIndexRoute: SystemsIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

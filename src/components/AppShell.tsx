@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
   Activity,
+  Cloud,
   Database as DatabaseIcon,
   Layers,
   LayoutDashboard,
@@ -26,6 +27,7 @@ const NAV = [
   { to: "/environments", key: "nav_environments", icon: Activity },
   { to: "/databases", key: "nav_databases", icon: DatabaseIcon },
   { to: "/data-sources", key: "nav_data_sources", icon: Plug },
+  { to: "/storage", key: "nav_storage", icon: Cloud },
   { to: "/access", key: "nav_access", icon: ShieldCheck },
   { to: "/audit", key: "nav_audit", icon: ScrollText },
 ] as const;
