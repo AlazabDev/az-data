@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SystemsIndexRouteImport } from './routes/systems.index'
+import { Route as SystemsSystemIdRouteImport } from './routes/systems.$systemId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -22,30 +23,39 @@ const SystemsIndexRoute = SystemsIndexRouteImport.update({
   path: '/systems/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SystemsSystemIdRoute = SystemsSystemIdRouteImport.update({
+  id: '/systems/$systemId',
+  path: '/systems/$systemId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/systems/$systemId': typeof SystemsSystemIdRoute
   '/systems/': typeof SystemsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/systems/$systemId': typeof SystemsSystemIdRoute
   '/systems': typeof SystemsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/systems/$systemId': typeof SystemsSystemIdRoute
   '/systems/': typeof SystemsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/systems/'
+  fullPaths: '/' | '/systems/$systemId' | '/systems/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/systems'
-  id: '__root__' | '/' | '/systems/'
+  to: '/' | '/systems/$systemId' | '/systems'
+  id: '__root__' | '/' | '/systems/$systemId' | '/systems/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  SystemsSystemIdRoute: typeof SystemsSystemIdRoute
   SystemsIndexRoute: typeof SystemsIndexRoute
 }
 
@@ -65,11 +75,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SystemsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/systems/$systemId': {
+      id: '/systems/$systemId'
+      path: '/systems/$systemId'
+      fullPath: '/systems/$systemId'
+      preLoaderRoute: typeof SystemsSystemIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  SystemsSystemIdRoute: SystemsSystemIdRoute,
   SystemsIndexRoute: SystemsIndexRoute,
 }
 export const routeTree = rootRouteImport
