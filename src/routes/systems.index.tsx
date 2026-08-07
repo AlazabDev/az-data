@@ -47,7 +47,7 @@ function SystemsPage() {
     { name: "business_owner", labelKey: "business_owner", type: "text" },
     { name: "technical_owner", labelKey: "technical_owner", type: "text" },
     { name: "purpose", labelKey: "purpose", type: "textarea" },
-    { name: "notes", labelKey: "notes", type: "textarea" },
+    { name: "operational_notes", labelKey: "operational_notes", type: "textarea" },
   ];
 
   const columns: Column<SystemRow>[] = [

@@ -66,7 +66,7 @@ function SystemDetail() {
             <Row label={t("criticality")} value={<StatusPill value={system.criticality} />} />
             <Row label={t("business_owner")} value={system.business_owner ?? t("none")} />
             <Row label={t("technical_owner")} value={system.technical_owner ?? t("none")} />
-            <Row label={t("notes")} value={system.notes ?? t("none")} />
+            <Row label={t("operational_notes")} value={system.operational_notes ?? t("none")} />
           </section>
 
           <section className="panel p-4">
