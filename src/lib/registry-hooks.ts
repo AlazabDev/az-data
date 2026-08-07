@@ -7,8 +7,8 @@ export type RegistryTable =
   | "databases"
   | "data_sources"
   | "audit_logs"
-  | "user_roles"
-  | "profiles";
+  | "adp_user_roles"
+  | "adp_profiles";
 
 export function useRows<T>(table: RegistryTable, orderBy = "created_at", ascending = false) {
   return useQuery({
