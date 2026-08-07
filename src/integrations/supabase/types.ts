@@ -50,6 +50,51 @@ export type Database = {
         }
         Relationships: []
       }
+      adp_profiles: {
+        Row: {
+          created_at: string
+          email: string | null
+          full_name: string | null
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      adp_user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
       ai_settings: {
         Row: {
           a2a_endpoint: string | null
@@ -221,6 +266,42 @@ export type Database = {
           key?: string
           updated_at?: string | null
           value?: string
+        }
+        Relationships: []
+      }
+      audit_logs: {
+        Row: {
+          action: string
+          actor_email: string | null
+          actor_id: string | null
+          created_at: string
+          id: string
+          new_data: Json | null
+          old_data: Json | null
+          record_id: string | null
+          table_name: string
+        }
+        Insert: {
+          action: string
+          actor_email?: string | null
+          actor_id?: string | null
+          created_at?: string
+          id?: string
+          new_data?: Json | null
+          old_data?: Json | null
+          record_id?: string | null
+          table_name: string
+        }
+        Update: {
+          action?: string
+          actor_email?: string | null
+          actor_id?: string | null
+          created_at?: string
+          id?: string
+          new_data?: Json | null
+          old_data?: Json | null
+          record_id?: string | null
+          table_name?: string
         }
         Relationships: []
       }
@@ -577,6 +658,175 @@ export type Database = {
           subtype?: string | null
         }
         Relationships: []
+      }
+      data_sources: {
+        Row: {
+          created_at: string
+          endpoint: string | null
+          health: Database["public"]["Enums"]["health_status"]
+          id: string
+          kind: Database["public"]["Enums"]["datasource_kind"]
+          name: string
+          notes: string | null
+          region: string | null
+          status: Database["public"]["Enums"]["lifecycle_status"]
+          system_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          endpoint?: string | null
+          health?: Database["public"]["Enums"]["health_status"]
+          id?: string
+          kind?: Database["public"]["Enums"]["datasource_kind"]
+          name: string
+          notes?: string | null
+          region?: string | null
+          status?: Database["public"]["Enums"]["lifecycle_status"]
+          system_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          endpoint?: string | null
+          health?: Database["public"]["Enums"]["health_status"]
+          id?: string
+          kind?: Database["public"]["Enums"]["datasource_kind"]
+          name?: string
+          notes?: string | null
+          region?: string | null
+          status?: Database["public"]["Enums"]["lifecycle_status"]
+          system_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "data_sources_system_id_fkey"
+            columns: ["system_id"]
+            isOneToOne: false
+            referencedRelation: "systems"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      databases: {
+        Row: {
+          backup_enabled: boolean
+          created_at: string
+          engine: string
+          environment_id: string | null
+          health: Database["public"]["Enums"]["health_status"]
+          host: string | null
+          id: string
+          last_backup_at: string | null
+          name: string
+          notes: string | null
+          port: number | null
+          status: Database["public"]["Enums"]["lifecycle_status"]
+          system_id: string | null
+          target_version: string | null
+          updated_at: string
+          version: string | null
+        }
+        Insert: {
+          backup_enabled?: boolean
+          created_at?: string
+          engine?: string
+          environment_id?: string | null
+          health?: Database["public"]["Enums"]["health_status"]
+          host?: string | null
+          id?: string
+          last_backup_at?: string | null
+          name: string
+          notes?: string | null
+          port?: number | null
+          status?: Database["public"]["Enums"]["lifecycle_status"]
+          system_id?: string | null
+          target_version?: string | null
+          updated_at?: string
+          version?: string | null
+        }
+        Update: {
+          backup_enabled?: boolean
+          created_at?: string
+          engine?: string
+          environment_id?: string | null
+          health?: Database["public"]["Enums"]["health_status"]
+          host?: string | null
+          id?: string
+          last_backup_at?: string | null
+          name?: string
+          notes?: string | null
+          port?: number | null
+          status?: Database["public"]["Enums"]["lifecycle_status"]
+          system_id?: string | null
+          target_version?: string | null
+          updated_at?: string
+          version?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "databases_environment_id_fkey"
+            columns: ["environment_id"]
+            isOneToOne: false
+            referencedRelation: "environments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "databases_system_id_fkey"
+            columns: ["system_id"]
+            isOneToOne: false
+            referencedRelation: "systems"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      environments: {
+        Row: {
+          created_at: string
+          health: Database["public"]["Enums"]["health_status"]
+          id: string
+          kind: Database["public"]["Enums"]["environment_kind"]
+          name: string
+          region: string | null
+          status: Database["public"]["Enums"]["lifecycle_status"]
+          system_id: string | null
+          updated_at: string
+          url: string | null
+        }
+        Insert: {
+          created_at?: string
+          health?: Database["public"]["Enums"]["health_status"]
+          id?: string
+          kind?: Database["public"]["Enums"]["environment_kind"]
+          name: string
+          region?: string | null
+          status?: Database["public"]["Enums"]["lifecycle_status"]
+          system_id?: string | null
+          updated_at?: string
+          url?: string | null
+        }
+        Update: {
+          created_at?: string
+          health?: Database["public"]["Enums"]["health_status"]
+          id?: string
+          kind?: Database["public"]["Enums"]["environment_kind"]
+          name?: string
+          region?: string | null
+          status?: Database["public"]["Enums"]["lifecycle_status"]
+          system_id?: string | null
+          updated_at?: string
+          url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "environments_system_id_fkey"
+            columns: ["system_id"]
+            isOneToOne: false
+            referencedRelation: "systems"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       expense_categories: {
         Row: {
@@ -2093,6 +2343,42 @@ export type Database = {
           },
         ]
       }
+      systems: {
+        Row: {
+          created_at: string
+          criticality: Database["public"]["Enums"]["criticality_level"]
+          description: string | null
+          health: Database["public"]["Enums"]["health_status"]
+          id: string
+          name: string
+          owner: string | null
+          status: Database["public"]["Enums"]["lifecycle_status"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          criticality?: Database["public"]["Enums"]["criticality_level"]
+          description?: string | null
+          health?: Database["public"]["Enums"]["health_status"]
+          id?: string
+          name: string
+          owner?: string | null
+          status?: Database["public"]["Enums"]["lifecycle_status"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          criticality?: Database["public"]["Enums"]["criticality_level"]
+          description?: string | null
+          health?: Database["public"]["Enums"]["health_status"]
+          id?: string
+          name?: string
+          owner?: string | null
+          status?: Database["public"]["Enums"]["lifecycle_status"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       tax_invoices: {
         Row: {
           commercial_register: string | null
@@ -2605,6 +2891,13 @@ export type Database = {
           total_conversations: number
         }[]
       }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
       is_admin: { Args: never; Returns: boolean }
       pn_create_project: {
         Args: { project_description?: string; project_name: string }
@@ -2625,6 +2918,40 @@ export type Database = {
       }
     }
     Enums: {
+      app_role:
+        | "platform_owner"
+        | "platform_admin"
+        | "database_administrator"
+        | "data_engineer"
+        | "data_analyst"
+        | "read_only"
+      criticality_level: "critical" | "high" | "medium" | "low" | "unknown"
+      datasource_kind:
+        | "api"
+        | "file_store"
+        | "object_storage"
+        | "queue"
+        | "cache"
+        | "warehouse"
+        | "vector_store"
+        | "spreadsheet"
+        | "other"
+      environment_kind:
+        | "production"
+        | "staging"
+        | "development"
+        | "testing"
+        | "sandbox"
+        | "dr"
+        | "other"
+      health_status: "healthy" | "warning" | "critical" | "unknown"
+      lifecycle_status:
+        | "active"
+        | "inactive"
+        | "maintenance"
+        | "deprecated"
+        | "archived"
+        | "unknown"
       mr_status: "Open" | "InProgress" | "Completed" | "Cancelled"
       notification_severity: "info" | "success" | "warning" | "error"
     }
@@ -2754,6 +3081,44 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      app_role: [
+        "platform_owner",
+        "platform_admin",
+        "database_administrator",
+        "data_engineer",
+        "data_analyst",
+        "read_only",
+      ],
+      criticality_level: ["critical", "high", "medium", "low", "unknown"],
+      datasource_kind: [
+        "api",
+        "file_store",
+        "object_storage",
+        "queue",
+        "cache",
+        "warehouse",
+        "vector_store",
+        "spreadsheet",
+        "other",
+      ],
+      environment_kind: [
+        "production",
+        "staging",
+        "development",
+        "testing",
+        "sandbox",
+        "dr",
+        "other",
+      ],
+      health_status: ["healthy", "warning", "critical", "unknown"],
+      lifecycle_status: [
+        "active",
+        "inactive",
+        "maintenance",
+        "deprecated",
+        "archived",
+        "unknown",
+      ],
       mr_status: ["Open", "InProgress", "Completed", "Cancelled"],
       notification_severity: ["info", "success", "warning", "error"],
     },
