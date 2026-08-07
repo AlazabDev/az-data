@@ -10,33 +10,128 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AccessRouteImport } from './routes/access'
+import { Route as AuditRouteImport } from './routes/audit'
+import { Route as DataSourcesRouteImport } from './routes/data-sources'
+import { Route as DatabasesRouteImport } from './routes/databases'
+import { Route as EnvironmentsRouteImport } from './routes/environments'
+import { Route as SystemsIndexRouteImport } from './routes/systems.index'
+import { Route as SystemsSystemIdRouteImport } from './routes/systems.$systemId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AccessRoute = AccessRouteImport.update({
+  id: '/access',
+  path: '/access',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuditRoute = AuditRouteImport.update({
+  id: '/audit',
+  path: '/audit',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DataSourcesRoute = DataSourcesRouteImport.update({
+  id: '/data-sources',
+  path: '/data-sources',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DatabasesRoute = DatabasesRouteImport.update({
+  id: '/databases',
+  path: '/databases',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EnvironmentsRoute = EnvironmentsRouteImport.update({
+  id: '/environments',
+  path: '/environments',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SystemsIndexRoute = SystemsIndexRouteImport.update({
+  id: '/systems/',
+  path: '/systems/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SystemsSystemIdRoute = SystemsSystemIdRouteImport.update({
+  id: '/systems/$systemId',
+  path: '/systems/$systemId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/access': typeof AccessRoute
+  '/audit': typeof AuditRoute
+  '/data-sources': typeof DataSourcesRoute
+  '/databases': typeof DatabasesRoute
+  '/environments': typeof EnvironmentsRoute
+  '/systems/$systemId': typeof SystemsSystemIdRoute
+  '/systems/': typeof SystemsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/access': typeof AccessRoute
+  '/audit': typeof AuditRoute
+  '/data-sources': typeof DataSourcesRoute
+  '/databases': typeof DatabasesRoute
+  '/environments': typeof EnvironmentsRoute
+  '/systems/$systemId': typeof SystemsSystemIdRoute
+  '/systems': typeof SystemsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/access': typeof AccessRoute
+  '/audit': typeof AuditRoute
+  '/data-sources': typeof DataSourcesRoute
+  '/databases': typeof DatabasesRoute
+  '/environments': typeof EnvironmentsRoute
+  '/systems/$systemId': typeof SystemsSystemIdRoute
+  '/systems/': typeof SystemsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/access'
+    | '/audit'
+    | '/data-sources'
+    | '/databases'
+    | '/environments'
+    | '/systems/$systemId'
+    | '/systems/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/access'
+    | '/audit'
+    | '/data-sources'
+    | '/databases'
+    | '/environments'
+    | '/systems/$systemId'
+    | '/systems'
+  id:
+    | '__root__'
+    | '/'
+    | '/access'
+    | '/audit'
+    | '/data-sources'
+    | '/databases'
+    | '/environments'
+    | '/systems/$systemId'
+    | '/systems/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AccessRoute: typeof AccessRoute
+  AuditRoute: typeof AuditRoute
+  DataSourcesRoute: typeof DataSourcesRoute
+  DatabasesRoute: typeof DatabasesRoute
+  EnvironmentsRoute: typeof EnvironmentsRoute
+  SystemsSystemIdRoute: typeof SystemsSystemIdRoute
+  SystemsIndexRoute: typeof SystemsIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,22 +143,68 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/access': {
+      id: '/access'
+      path: '/access'
+      fullPath: '/access'
+      preLoaderRoute: typeof AccessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/audit': {
+      id: '/audit'
+      path: '/audit'
+      fullPath: '/audit'
+      preLoaderRoute: typeof AuditRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/data-sources': {
+      id: '/data-sources'
+      path: '/data-sources'
+      fullPath: '/data-sources'
+      preLoaderRoute: typeof DataSourcesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/databases': {
+      id: '/databases'
+      path: '/databases'
+      fullPath: '/databases'
+      preLoaderRoute: typeof DatabasesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/environments': {
+      id: '/environments'
+      path: '/environments'
+      fullPath: '/environments'
+      preLoaderRoute: typeof EnvironmentsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/systems/': {
+      id: '/systems/'
+      path: '/systems'
+      fullPath: '/systems/'
+      preLoaderRoute: typeof SystemsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/systems/$systemId': {
+      id: '/systems/$systemId'
+      path: '/systems/$systemId'
+      fullPath: '/systems/$systemId'
+      preLoaderRoute: typeof SystemsSystemIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AccessRoute: AccessRoute,
+  AuditRoute: AuditRoute,
+  DataSourcesRoute: DataSourcesRoute,
+  DatabasesRoute: DatabasesRoute,
+  EnvironmentsRoute: EnvironmentsRoute,
+  SystemsSystemIdRoute: SystemsSystemIdRoute,
+  SystemsIndexRoute: SystemsIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
