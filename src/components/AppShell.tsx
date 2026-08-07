@@ -115,6 +115,14 @@ export function AppShell({
               <Button
                 variant="outline"
                 size="sm"
+                onClick={() => setTheme(resolved === "dark" ? "light" : "dark")}
+                aria-label={resolved === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+              >
+                {resolved === "dark" ? <Sun className="size-4" /> : <Moon className="size-4" />}
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={() => setLang(lang === "ar" ? "en" : "ar")}
               >
                 {lang === "ar" ? "EN" : "ع"}
