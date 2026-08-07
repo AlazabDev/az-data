@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
   Activity,
+  Cloud,
   Database as DatabaseIcon,
   Layers,
   LayoutDashboard,
