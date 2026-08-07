@@ -43,6 +43,7 @@ export function AppShell({
 }) {
   const { user, loading, signOut, roles } = useAuth();
   const { t, te, lang, setLang } = useI18n();
+  const { resolved, setTheme } = useTheme();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   if (loading) {
