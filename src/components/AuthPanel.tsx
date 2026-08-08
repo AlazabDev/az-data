@@ -172,12 +172,34 @@ export function AuthPanel() {
 
           {error ? <p className="text-sm text-destructive">{error}</p> : null}
           {message ? <p className="text-sm text-success">{message}</p> : null}
+          {needsConfirm ? (
+            <button
+              type="button"
+              className="text-xs text-primary underline-offset-4 hover:underline"
+              onClick={() => void onResend()}
+              disabled={busy}
+            >
+              {t("resend_confirmation")}
+            </button>
+          ) : null}
 
           <Button type="submit" className="w-full" disabled={busy}>
             {busy ? <Loader2 className="size-4 animate-spin" /> : null}
             {mode === "signin" ? t("sign_in") : t("sign_up")}
           </Button>
+
+          {mode === "signin" ? (
+            <button
+              type="button"
+              className="w-full text-center text-xs text-muted-foreground underline-offset-4 hover:underline"
+              onClick={() => void onForgot()}
+              disabled={busy}
+            >
+              {t("forgot_password")}
+            </button>
+          ) : null}
         </form>
+
 
         <button
           type="button"
