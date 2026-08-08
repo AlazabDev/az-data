@@ -16,6 +16,7 @@ import { Route as DataSourcesRouteImport } from './routes/data-sources'
 import { Route as DatabasesRouteImport } from './routes/databases'
 import { Route as EnvironmentsRouteImport } from './routes/environments'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as StorageRouteImport } from './routes/storage'
 import { Route as SystemsIndexRouteImport } from './routes/systems.index'
 import { Route as SystemsSystemIdRouteImport } from './routes/systems.$systemId'
@@ -55,6 +56,11 @@ const ResetPasswordRoute = ResetPasswordRouteImport.update({
   path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const StorageRoute = StorageRouteImport.update({
   id: '/storage',
   path: '/storage',
@@ -79,6 +85,7 @@ export interface FileRoutesByFullPath {
   '/databases': typeof DatabasesRoute
   '/environments': typeof EnvironmentsRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/settings': typeof SettingsRoute
   '/storage': typeof StorageRoute
   '/systems/$systemId': typeof SystemsSystemIdRoute
   '/systems/': typeof SystemsIndexRoute
@@ -91,6 +98,7 @@ export interface FileRoutesByTo {
   '/databases': typeof DatabasesRoute
   '/environments': typeof EnvironmentsRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/settings': typeof SettingsRoute
   '/storage': typeof StorageRoute
   '/systems/$systemId': typeof SystemsSystemIdRoute
   '/systems': typeof SystemsIndexRoute
@@ -104,6 +112,7 @@ export interface FileRoutesById {
   '/databases': typeof DatabasesRoute
   '/environments': typeof EnvironmentsRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/settings': typeof SettingsRoute
   '/storage': typeof StorageRoute
   '/systems/$systemId': typeof SystemsSystemIdRoute
   '/systems/': typeof SystemsIndexRoute
@@ -118,6 +127,7 @@ export interface FileRouteTypes {
     | '/databases'
     | '/environments'
     | '/reset-password'
+    | '/settings'
     | '/storage'
     | '/systems/$systemId'
     | '/systems/'
@@ -130,6 +140,7 @@ export interface FileRouteTypes {
     | '/databases'
     | '/environments'
     | '/reset-password'
+    | '/settings'
     | '/storage'
     | '/systems/$systemId'
     | '/systems'
@@ -142,6 +153,7 @@ export interface FileRouteTypes {
     | '/databases'
     | '/environments'
     | '/reset-password'
+    | '/settings'
     | '/storage'
     | '/systems/$systemId'
     | '/systems/'
@@ -155,6 +167,7 @@ export interface RootRouteChildren {
   DatabasesRoute: typeof DatabasesRoute
   EnvironmentsRoute: typeof EnvironmentsRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  SettingsRoute: typeof SettingsRoute
   StorageRoute: typeof StorageRoute
   SystemsSystemIdRoute: typeof SystemsSystemIdRoute
   SystemsIndexRoute: typeof SystemsIndexRoute
@@ -211,6 +224,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/storage': {
       id: '/storage'
       path: '/storage'
@@ -243,6 +263,7 @@ const rootRouteChildren: RootRouteChildren = {
   DatabasesRoute: DatabasesRoute,
   EnvironmentsRoute: EnvironmentsRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  SettingsRoute: SettingsRoute,
   StorageRoute: StorageRoute,
   SystemsSystemIdRoute: SystemsSystemIdRoute,
   SystemsIndexRoute: SystemsIndexRoute,
