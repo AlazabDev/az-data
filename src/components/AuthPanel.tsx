@@ -16,27 +16,74 @@ export function AuthPanel() {
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [needsConfirm, setNeedsConfirm] = useState(false);
+
+  function friendly(raw: string): string {
+    const m = raw.toLowerCase();
+    if (m.includes("invalid login credentials")) return t("err_invalid_credentials");
+    if (m.includes("email not confirmed")) return t("err_email_not_confirmed");
+    if (m.includes("already registered") || m.includes("user already")) return t("err_user_exists");
+    if (m.includes("rate limit") || m.includes("too many")) return t("err_rate_limit");
+    return raw;
+  }
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     setBusy(true);
     setError(null);
     setMessage(null);
+    setNeedsConfirm(false);
     if (mode === "signin") {
-      const { error: err } = await supabase.auth.signInWithPassword({ email, password });
-      if (err) setError(err.message);
+      const { error: err } = await supabase.auth.signInWithPassword({
+        email: email.trim().toLowerCase(),
+        password,
+      });
+      if (err) {
+        setError(friendly(err.message));
+        if (err.message.toLowerCase().includes("email not confirmed")) setNeedsConfirm(true);
+      }
     } else {
       const { data, error: err } = await supabase.auth.signUp({
-        email,
+        email: email.trim().toLowerCase(),
         password,
         options: {
           emailRedirectTo: window.location.origin,
           data: { full_name: fullName },
         },
       });
-      if (err) setError(err.message);
+      if (err) setError(friendly(err.message));
       else if (!data.session) setMessage(t("check_email"));
     }
+    setBusy(false);
+  }
+
+  async function onForgot() {
+    if (!email.trim()) {
+      setError(t("err_email_required"));
+      return;
+    }
+    setBusy(true);
+    setError(null);
+    setMessage(null);
+    const { error: err } = await supabase.auth.resetPasswordForEmail(email.trim().toLowerCase(), {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    if (err) setError(friendly(err.message));
+    else setMessage(t("reset_link_sent"));
+    setBusy(false);
+  }
+
+  async function onResend() {
+    setBusy(true);
+    setError(null);
+    setMessage(null);
+    const { error: err } = await supabase.auth.resend({
+      type: "signup",
+      email: email.trim().toLowerCase(),
+      options: { emailRedirectTo: window.location.origin },
+    });
+    if (err) setError(friendly(err.message));
+    else setMessage(t("confirmation_sent"));
     setBusy(false);
   }
 
@@ -54,6 +101,7 @@ export function AuthPanel() {
     if (result.redirected) return;
     setBusy(false);
   }
+
 
   return (
     <div className="grid-backdrop flex min-h-screen items-center justify-center px-4 py-16">
@@ -124,12 +172,34 @@ export function AuthPanel() {
 
           {error ? <p className="text-sm text-destructive">{error}</p> : null}
           {message ? <p className="text-sm text-success">{message}</p> : null}
+          {needsConfirm ? (
+            <button
+              type="button"
+              className="text-xs text-primary underline-offset-4 hover:underline"
+              onClick={() => void onResend()}
+              disabled={busy}
+            >
+              {t("resend_confirmation")}
+            </button>
+          ) : null}
 
           <Button type="submit" className="w-full" disabled={busy}>
             {busy ? <Loader2 className="size-4 animate-spin" /> : null}
             {mode === "signin" ? t("sign_in") : t("sign_up")}
           </Button>
+
+          {mode === "signin" ? (
+            <button
+              type="button"
+              className="w-full text-center text-xs text-muted-foreground underline-offset-4 hover:underline"
+              onClick={() => void onForgot()}
+              disabled={busy}
+            >
+              {t("forgot_password")}
+            </button>
+          ) : null}
         </form>
+
 
         <button
           type="button"
