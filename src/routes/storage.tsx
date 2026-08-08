@@ -84,6 +84,7 @@ function StoragePage() {
   const [bucket, setBucket] = useState<string | null>(null);
   const [prefix, setPrefix] = useState("");
   const [busy, setBusy] = useState(false);
+  const [progress, setProgress] = useState({ done: 0, total: 0 });
   const [health, setHealth] = useState<Record<string, { ok: boolean; msg: string }>>({});
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -123,23 +124,30 @@ function StoragePage() {
     setPrefix("");
   }, []);
 
-  async function handleUpload(file: File) {
-    if (!endpointKey || !bucket) return;
+  async function handleUpload(files: File[]) {
+    if (!endpointKey || !bucket || !files.length) return;
     setBusy(true);
-    try {
-      const { url } = await uploadUrl({
-        data: { endpoint: endpointKey, bucket, key: `${prefix}${file.name}` },
-      });
-      const res = await fetch(url, { method: "PUT", body: file });
-      if (!res.ok) throw new Error(`Upload failed [${res.status}]: ${await res.text()}`);
-      toast.success(t("upload_done"));
-      void objects.refetch();
-    } catch (e) {
-      toast.error((e as Error).message);
-    } finally {
-      setBusy(false);
-      if (fileRef.current) fileRef.current.value = "";
+    setProgress({ done: 0, total: files.length });
+    let ok = 0;
+    for (const file of files) {
+      try {
+        const { url } = await uploadUrl({
+          data: { endpoint: endpointKey, bucket, key: `${prefix}${file.name}` },
+        });
+        const res = await fetch(url, { method: "PUT", body: file });
+        if (!res.ok) throw new Error(`${file.name}: [${res.status}] ${await res.text()}`);
+        ok += 1;
+      } catch (e) {
+        toast.error((e as Error).message);
+      } finally {
+        setProgress((p) => ({ done: p.done + 1, total: p.total }));
+      }
     }
+    if (ok) toast.success(`${t("uploaded_count")}: ${ok}/${files.length}`);
+    void objects.refetch();
+    setBusy(false);
+    setProgress({ done: 0, total: 0 });
+    if (fileRef.current) fileRef.current.value = "";
   }
 
   async function handleDownload(key: string) {
@@ -242,15 +250,18 @@ function StoragePage() {
                   <input
                     ref={fileRef}
                     type="file"
+                    multiple
                     className="hidden"
                     onChange={(e) => {
-                      const f = e.target.files?.[0];
-                      if (f) void handleUpload(f);
+                      const list = Array.from(e.target.files ?? []);
+                      if (list.length) void handleUpload(list);
                     }}
                   />
                   <Button size="sm" disabled={busy} onClick={() => fileRef.current?.click()}>
                     {busy ? <Loader2 className="size-4 animate-spin" /> : <Upload className="size-4" />}
-                    {t("upload")}
+                    {busy && progress.total
+                      ? `${t("uploading_files")} ${progress.done}/${progress.total}`
+                      : t("upload")}
                   </Button>
                 </div>
               ) : null}
