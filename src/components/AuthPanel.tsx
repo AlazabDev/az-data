@@ -1,8 +1,9 @@
-import { useState, type FormEvent } from "react";
+import { useMemo, useState, type FormEvent } from "react";
 import { Database, Loader2, MessageCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { requestWhatsappOtp, verifyWhatsappOtp } from "@/lib/whatsapp-auth.functions";
+import { passwordPolicyMessage, validatePlatformPassword } from "@/lib/password-policy";
 import { useI18n } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 
 export function AuthPanel() {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const [tab, setTab] = useState<"email" | "whatsapp">("email");
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
@@ -23,6 +24,7 @@ export function AuthPanel() {
   const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState("");
   const [otpSent, setOtpSent] = useState(false);
+  const passwordErrors = useMemo(() => (mode === "signup" ? validatePlatformPassword(password) : []), [mode, password]);
 
   function friendly(raw: string): string {
     const m = raw.toLowerCase();
@@ -40,9 +42,18 @@ export function AuthPanel() {
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
-    setBusy(true);
     reset();
     setNeedsConfirm(false);
+
+    if (mode === "signup") {
+      const violations = validatePlatformPassword(password);
+      if (violations.length) {
+        setError(passwordPolicyMessage(violations[0]!, lang === "ar" ? "ar" : "en"));
+        return;
+      }
+    }
+
+    setBusy(true);
     if (mode === "signin") {
       const { error: err } = await supabase.auth.signInWithPassword({
         email: email.trim().toLowerCase(),
@@ -95,9 +106,7 @@ export function AuthPanel() {
   async function onGoogle() {
     setBusy(true);
     reset();
-    const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin,
-    });
+    const result = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin });
     if (result.error) {
       setError(String(result.error));
       setBusy(false);
@@ -137,14 +146,9 @@ export function AuthPanel() {
     setBusy(true);
     reset();
     try {
-      const { tokenHash } = await verifyWhatsappOtp({
-        data: { phone: phone.trim(), code: otp.trim() },
-      });
+      const { tokenHash } = await verifyWhatsappOtp({ data: { phone: phone.trim(), code: otp.trim() } });
       if (!tokenHash) throw new Error(t("err_otp_session"));
-      const { error: err } = await supabase.auth.verifyOtp({
-        type: "magiclink",
-        token_hash: tokenHash,
-      });
+      const { error: err } = await supabase.auth.verifyOtp({ type: "magiclink", token_hash: tokenHash });
       if (err) setError(friendly(err.message));
     } catch (e) {
       setError((e as Error).message);
@@ -156,9 +160,7 @@ export function AuthPanel() {
     <div className="grid-backdrop flex min-h-screen items-center justify-center px-4 py-16">
       <div className="panel w-full max-w-md p-8">
         <div className="flex items-center gap-3">
-          <span className="flex size-10 items-center justify-center rounded-md bg-primary/15 text-primary">
-            <Database className="size-5" />
-          </span>
+          <span className="flex size-10 items-center justify-center rounded-md bg-primary/15 text-primary"><Database className="size-5" /></span>
           <div>
             <h1 className="text-lg leading-tight font-semibold">{t("platform_name")}</h1>
             <p className="font-mono text-xs text-muted-foreground">data@alazab.com</p>
@@ -168,45 +170,19 @@ export function AuthPanel() {
         <p className="mt-5 text-sm text-muted-foreground">{t("auth_intro")}</p>
 
         <div className="mt-6 space-y-2">
-          <Button
-            type="button"
-            variant="outline"
-            className="w-full"
-            disabled={busy}
-            onClick={() => void onGoogle()}
-          >
-            {t("continue_google")}
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            className="w-full"
-            disabled={busy}
-            onClick={() => void onMicrosoft()}
-          >
-            {t("continue_microsoft")}
-          </Button>
+          <Button type="button" variant="outline" className="w-full" disabled={busy} onClick={() => void onGoogle()}>{t("continue_google")}</Button>
+          <Button type="button" variant="outline" className="w-full" disabled={busy} onClick={() => void onMicrosoft()}>{t("continue_microsoft")}</Button>
         </div>
 
-        <div className="my-5 flex items-center gap-3 text-xs text-muted-foreground">
-          <span className="h-px flex-1 bg-border" />
-          <span>—</span>
-          <span className="h-px flex-1 bg-border" />
-        </div>
+        <div className="my-5 flex items-center gap-3 text-xs text-muted-foreground"><span className="h-px flex-1 bg-border" /><span>—</span><span className="h-px flex-1 bg-border" /></div>
 
         <div className="mb-4 grid grid-cols-2 gap-1 rounded-md bg-muted p-1 text-sm">
           {(["email", "whatsapp"] as const).map((k) => (
             <button
               key={k}
               type="button"
-              onClick={() => {
-                setTab(k);
-                reset();
-              }}
-              className={cn(
-                "rounded-sm px-3 py-1.5 transition-colors",
-                tab === k ? "bg-background font-medium shadow-sm" : "text-muted-foreground",
-              )}
+              onClick={() => { setTab(k); reset(); }}
+              className={cn("rounded-sm px-3 py-1.5 transition-colors", tab === k ? "bg-background font-medium shadow-sm" : "text-muted-foreground")}
             >
               {k === "email" ? t("email") : t("whatsapp")}
             </button>
@@ -218,24 +194,12 @@ export function AuthPanel() {
             {mode === "signup" ? (
               <div className="space-y-1.5">
                 <Label htmlFor="full_name">{t("full_name")}</Label>
-                <Input
-                  id="full_name"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  required
-                />
+                <Input id="full_name" value={fullName} onChange={(e) => setFullName(e.target.value)} required />
               </div>
             ) : null}
             <div className="space-y-1.5">
               <Label htmlFor="email">{t("email")}</Label>
-              <Input
-                id="email"
-                type="email"
-                dir="ltr"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
+              <Input id="email" type="email" dir="ltr" value={email} onChange={(e) => setEmail(e.target.value)} required />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="password">{t("password")}</Label>
@@ -243,24 +207,24 @@ export function AuthPanel() {
                 id="password"
                 type="password"
                 dir="ltr"
-                minLength={8}
+                minLength={mode === "signup" ? 15 : undefined}
+                maxLength={mode === "signup" ? 20 : undefined}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
               />
+              {mode === "signup" ? (
+                <div className="space-y-1 text-[11px] text-muted-foreground">
+                  <p>{lang === "ar" ? "15–20 حرفًا · A-Z / a-z / 0-9 / $ # _" : "15–20 chars · A-Z / a-z / 0-9 / $ # _"}</p>
+                  {password.length && passwordErrors.length ? <p className="text-destructive">{passwordPolicyMessage(passwordErrors[0]!, lang === "ar" ? "ar" : "en")}</p> : null}
+                </div>
+              ) : null}
             </div>
 
             {error ? <p className="text-sm text-destructive">{error}</p> : null}
             {message ? <p className="text-sm text-success">{message}</p> : null}
             {needsConfirm ? (
-              <button
-                type="button"
-                className="text-xs text-primary underline-offset-4 hover:underline"
-                onClick={() => void onResend()}
-                disabled={busy}
-              >
-                {t("resend_confirmation")}
-              </button>
+              <button type="button" className="text-xs text-primary underline-offset-4 hover:underline" onClick={() => void onResend()} disabled={busy}>{t("resend_confirmation")}</button>
             ) : null}
 
             <Button type="submit" className="w-full" disabled={busy}>
@@ -269,23 +233,13 @@ export function AuthPanel() {
             </Button>
 
             {mode === "signin" ? (
-              <button
-                type="button"
-                className="w-full text-center text-xs text-muted-foreground underline-offset-4 hover:underline"
-                onClick={() => void onForgot()}
-                disabled={busy}
-              >
-                {t("forgot_password")}
-              </button>
+              <button type="button" className="w-full text-center text-xs text-muted-foreground underline-offset-4 hover:underline" onClick={() => void onForgot()} disabled={busy}>{t("forgot_password")}</button>
             ) : null}
 
             <button
               type="button"
               className="w-full text-center text-xs text-primary underline-offset-4 hover:underline"
-              onClick={() => {
-                setMode(mode === "signin" ? "signup" : "signin");
-                reset();
-              }}
+              onClick={() => { setMode(mode === "signin" ? "signup" : "signin"); setPassword(""); reset(); }}
             >
               {mode === "signin" ? t("sign_up") : t("sign_in")}
             </button>
@@ -294,52 +248,24 @@ export function AuthPanel() {
           <div className="space-y-4">
             <div className="space-y-1.5">
               <Label htmlFor="phone">{t("phone_number")}</Label>
-              <Input
-                id="phone"
-                dir="ltr"
-                placeholder="+201000000000"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-              />
+              <Input id="phone" dir="ltr" placeholder="+201000000000" value={phone} onChange={(e) => setPhone(e.target.value)} />
             </div>
             {otpSent ? (
               <div className="space-y-1.5">
                 <Label htmlFor="otp">{t("otp_code")}</Label>
-                <Input
-                  id="otp"
-                  dir="ltr"
-                  inputMode="numeric"
-                  maxLength={6}
-                  value={otp}
-                  onChange={(e) => setOtp(e.target.value)}
-                />
+                <Input id="otp" dir="ltr" inputMode="numeric" maxLength={6} value={otp} onChange={(e) => setOtp(e.target.value)} />
               </div>
             ) : null}
 
             {error ? <p className="text-sm text-destructive">{error}</p> : null}
             {message ? <p className="text-sm text-success">{message}</p> : null}
 
-            <Button
-              type="button"
-              className="w-full"
-              disabled={busy || !phone.trim()}
-              onClick={() => void (otpSent ? onVerifyOtp() : onSendOtp())}
-            >
+            <Button type="button" className="w-full" disabled={busy || !phone.trim()} onClick={() => void (otpSent ? onVerifyOtp() : onSendOtp())}>
               {busy ? <Loader2 className="size-4 animate-spin" /> : <MessageCircle className="size-4" />}
               {otpSent ? t("verify_otp") : t("send_otp")}
             </Button>
             {otpSent ? (
-              <button
-                type="button"
-                className="w-full text-center text-xs text-muted-foreground underline-offset-4 hover:underline"
-                onClick={() => {
-                  setOtpSent(false);
-                  setOtp("");
-                  reset();
-                }}
-              >
-                {t("change_phone")}
-              </button>
+              <button type="button" className="w-full text-center text-xs text-muted-foreground underline-offset-4 hover:underline" onClick={() => { setOtpSent(false); setOtp(""); reset(); }}>{t("change_phone")}</button>
             ) : null}
           </div>
         )}
