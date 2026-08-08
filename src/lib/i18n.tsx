@@ -40,7 +40,6 @@ export const dict: Dict = {
   settings_appearance: { ar: "المظهر واللغة", en: "Appearance & language" },
   settings_account: { ar: "الحساب", en: "Account" },
   settings_saved: { ar: "تم حفظ الإعدادات", en: "Settings saved" },
-  save: { ar: "حفظ", en: "Save" },
   admin_only: { ar: "التعديل متاح لمسؤولي المنصة فقط.", en: "Only platform admins can edit." },
   platform_name_ar: { ar: "الاسم بالعربية", en: "Name (Arabic)" },
   platform_name_en: { ar: "الاسم بالإنجليزية", en: "Name (English)" },
@@ -61,7 +60,7 @@ export const dict: Dict = {
   uploaded_count: { ar: "تم رفع الملفات", en: "Files uploaded" },
   dark: { ar: "ليلي", en: "Dark" },
   light: { ar: "نهاري", en: "Light" },
-  system: { ar: "حسب النظام", en: "System" },
+  theme_system: { ar: "حسب النظام", en: "System" },
   storage_desc: {
     ar: "إدارة موحّدة للمخازن المتوافقة مع S3: AWS، GCS، MinIO، Oracle، R2، Supabase",
     en: "Unified administration for S3-compatible storage: AWS, GCS, MinIO, Oracle, R2, Supabase",
