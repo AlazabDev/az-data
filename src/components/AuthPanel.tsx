@@ -1,14 +1,17 @@
 import { useState, type FormEvent } from "react";
-import { Database, Loader2 } from "lucide-react";
+import { Database, Loader2, MessageCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
+import { requestWhatsappOtp, verifyWhatsappOtp } from "@/lib/whatsapp-auth.functions";
 import { useI18n } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
 
 export function AuthPanel() {
   const { t } = useI18n();
+  const [tab, setTab] = useState<"email" | "whatsapp">("email");
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -17,6 +20,9 @@ export function AuthPanel() {
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [needsConfirm, setNeedsConfirm] = useState(false);
+  const [phone, setPhone] = useState("");
+  const [otp, setOtp] = useState("");
+  const [otpSent, setOtpSent] = useState(false);
 
   function friendly(raw: string): string {
     const m = raw.toLowerCase();
@@ -27,11 +33,15 @@ export function AuthPanel() {
     return raw;
   }
 
+  function reset() {
+    setError(null);
+    setMessage(null);
+  }
+
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     setBusy(true);
-    setError(null);
-    setMessage(null);
+    reset();
     setNeedsConfirm(false);
     if (mode === "signin") {
       const { error: err } = await supabase.auth.signInWithPassword({
@@ -46,10 +56,7 @@ export function AuthPanel() {
       const { data, error: err } = await supabase.auth.signUp({
         email: email.trim().toLowerCase(),
         password,
-        options: {
-          emailRedirectTo: window.location.origin,
-          data: { full_name: fullName },
-        },
+        options: { emailRedirectTo: window.location.origin, data: { full_name: fullName } },
       });
       if (err) setError(friendly(err.message));
       else if (!data.session) setMessage(t("check_email"));
@@ -63,8 +70,7 @@ export function AuthPanel() {
       return;
     }
     setBusy(true);
-    setError(null);
-    setMessage(null);
+    reset();
     const { error: err } = await supabase.auth.resetPasswordForEmail(email.trim().toLowerCase(), {
       redirectTo: `${window.location.origin}/reset-password`,
     });
@@ -75,8 +81,7 @@ export function AuthPanel() {
 
   async function onResend() {
     setBusy(true);
-    setError(null);
-    setMessage(null);
+    reset();
     const { error: err } = await supabase.auth.resend({
       type: "signup",
       email: email.trim().toLowerCase(),
@@ -89,7 +94,7 @@ export function AuthPanel() {
 
   async function onGoogle() {
     setBusy(true);
-    setError(null);
+    reset();
     const result = await lovable.auth.signInWithOAuth("google", {
       redirect_uri: window.location.origin,
     });
@@ -102,6 +107,50 @@ export function AuthPanel() {
     setBusy(false);
   }
 
+  async function onMicrosoft() {
+    setBusy(true);
+    reset();
+    const { error: err } = await supabase.auth.signInWithOAuth({
+      provider: "azure",
+      options: { redirectTo: window.location.origin, scopes: "email openid profile offline_access" },
+    });
+    if (err) {
+      setError(friendly(err.message));
+      setBusy(false);
+    }
+  }
+
+  async function onSendOtp() {
+    setBusy(true);
+    reset();
+    try {
+      await requestWhatsappOtp({ data: { phone: phone.trim() } });
+      setOtpSent(true);
+      setMessage(t("otp_sent"));
+    } catch (e) {
+      setError((e as Error).message);
+    }
+    setBusy(false);
+  }
+
+  async function onVerifyOtp() {
+    setBusy(true);
+    reset();
+    try {
+      const { tokenHash } = await verifyWhatsappOtp({
+        data: { phone: phone.trim(), code: otp.trim() },
+      });
+      if (!tokenHash) throw new Error(t("err_otp_session"));
+      const { error: err } = await supabase.auth.verifyOtp({
+        type: "magiclink",
+        token_hash: tokenHash,
+      });
+      if (err) setError(friendly(err.message));
+    } catch (e) {
+      setError((e as Error).message);
+    }
+    setBusy(false);
+  }
 
   return (
     <div className="grid-backdrop flex min-h-screen items-center justify-center px-4 py-16">
@@ -118,15 +167,26 @@ export function AuthPanel() {
 
         <p className="mt-5 text-sm text-muted-foreground">{t("auth_intro")}</p>
 
-        <Button
-          type="button"
-          variant="outline"
-          className="mt-6 w-full"
-          disabled={busy}
-          onClick={() => void onGoogle()}
-        >
-          {t("continue_google")}
-        </Button>
+        <div className="mt-6 space-y-2">
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full"
+            disabled={busy}
+            onClick={() => void onGoogle()}
+          >
+            {t("continue_google")}
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full"
+            disabled={busy}
+            onClick={() => void onMicrosoft()}
+          >
+            {t("continue_microsoft")}
+          </Button>
+        </div>
 
         <div className="my-5 flex items-center gap-3 text-xs text-muted-foreground">
           <span className="h-px flex-1 bg-border" />
@@ -134,84 +194,155 @@ export function AuthPanel() {
           <span className="h-px flex-1 bg-border" />
         </div>
 
-        <form onSubmit={(e) => void onSubmit(e)} className="space-y-4">
-          {mode === "signup" ? (
+        <div className="mb-4 grid grid-cols-2 gap-1 rounded-md bg-muted p-1 text-sm">
+          {(["email", "whatsapp"] as const).map((k) => (
+            <button
+              key={k}
+              type="button"
+              onClick={() => {
+                setTab(k);
+                reset();
+              }}
+              className={cn(
+                "rounded-sm px-3 py-1.5 transition-colors",
+                tab === k ? "bg-background font-medium shadow-sm" : "text-muted-foreground",
+              )}
+            >
+              {k === "email" ? t("email") : t("whatsapp")}
+            </button>
+          ))}
+        </div>
+
+        {tab === "email" ? (
+          <form onSubmit={(e) => void onSubmit(e)} className="space-y-4">
+            {mode === "signup" ? (
+              <div className="space-y-1.5">
+                <Label htmlFor="full_name">{t("full_name")}</Label>
+                <Input
+                  id="full_name"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  required
+                />
+              </div>
+            ) : null}
             <div className="space-y-1.5">
-              <Label htmlFor="full_name">{t("full_name")}</Label>
+              <Label htmlFor="email">{t("email")}</Label>
               <Input
-                id="full_name"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
+                id="email"
+                type="email"
+                dir="ltr"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 required
               />
             </div>
-          ) : null}
-          <div className="space-y-1.5">
-            <Label htmlFor="email">{t("email")}</Label>
-            <Input
-              id="email"
-              type="email"
-              dir="ltr"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="password">{t("password")}</Label>
-            <Input
-              id="password"
-              type="password"
-              dir="ltr"
-              minLength={8}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="password">{t("password")}</Label>
+              <Input
+                id="password"
+                type="password"
+                dir="ltr"
+                minLength={8}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
 
-          {error ? <p className="text-sm text-destructive">{error}</p> : null}
-          {message ? <p className="text-sm text-success">{message}</p> : null}
-          {needsConfirm ? (
+            {error ? <p className="text-sm text-destructive">{error}</p> : null}
+            {message ? <p className="text-sm text-success">{message}</p> : null}
+            {needsConfirm ? (
+              <button
+                type="button"
+                className="text-xs text-primary underline-offset-4 hover:underline"
+                onClick={() => void onResend()}
+                disabled={busy}
+              >
+                {t("resend_confirmation")}
+              </button>
+            ) : null}
+
+            <Button type="submit" className="w-full" disabled={busy}>
+              {busy ? <Loader2 className="size-4 animate-spin" /> : null}
+              {mode === "signin" ? t("sign_in") : t("sign_up")}
+            </Button>
+
+            {mode === "signin" ? (
+              <button
+                type="button"
+                className="w-full text-center text-xs text-muted-foreground underline-offset-4 hover:underline"
+                onClick={() => void onForgot()}
+                disabled={busy}
+              >
+                {t("forgot_password")}
+              </button>
+            ) : null}
+
             <button
               type="button"
-              className="text-xs text-primary underline-offset-4 hover:underline"
-              onClick={() => void onResend()}
-              disabled={busy}
+              className="w-full text-center text-xs text-primary underline-offset-4 hover:underline"
+              onClick={() => {
+                setMode(mode === "signin" ? "signup" : "signin");
+                reset();
+              }}
             >
-              {t("resend_confirmation")}
+              {mode === "signin" ? t("sign_up") : t("sign_in")}
             </button>
-          ) : null}
+          </form>
+        ) : (
+          <div className="space-y-4">
+            <div className="space-y-1.5">
+              <Label htmlFor="phone">{t("phone_number")}</Label>
+              <Input
+                id="phone"
+                dir="ltr"
+                placeholder="+201000000000"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+              />
+            </div>
+            {otpSent ? (
+              <div className="space-y-1.5">
+                <Label htmlFor="otp">{t("otp_code")}</Label>
+                <Input
+                  id="otp"
+                  dir="ltr"
+                  inputMode="numeric"
+                  maxLength={6}
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value)}
+                />
+              </div>
+            ) : null}
 
-          <Button type="submit" className="w-full" disabled={busy}>
-            {busy ? <Loader2 className="size-4 animate-spin" /> : null}
-            {mode === "signin" ? t("sign_in") : t("sign_up")}
-          </Button>
+            {error ? <p className="text-sm text-destructive">{error}</p> : null}
+            {message ? <p className="text-sm text-success">{message}</p> : null}
 
-          {mode === "signin" ? (
-            <button
+            <Button
               type="button"
-              className="w-full text-center text-xs text-muted-foreground underline-offset-4 hover:underline"
-              onClick={() => void onForgot()}
-              disabled={busy}
+              className="w-full"
+              disabled={busy || !phone.trim()}
+              onClick={() => void (otpSent ? onVerifyOtp() : onSendOtp())}
             >
-              {t("forgot_password")}
-            </button>
-          ) : null}
-        </form>
-
-
-        <button
-          type="button"
-          className="mt-4 w-full text-center text-xs text-muted-foreground underline-offset-4 hover:underline"
-          onClick={() => {
-            setMode(mode === "signin" ? "signup" : "signin");
-            setError(null);
-            setMessage(null);
-          }}
-        >
-          {mode === "signin" ? t("sign_up") : t("sign_in")}
-        </button>
+              {busy ? <Loader2 className="size-4 animate-spin" /> : <MessageCircle className="size-4" />}
+              {otpSent ? t("verify_otp") : t("send_otp")}
+            </Button>
+            {otpSent ? (
+              <button
+                type="button"
+                className="w-full text-center text-xs text-muted-foreground underline-offset-4 hover:underline"
+                onClick={() => {
+                  setOtpSent(false);
+                  setOtp("");
+                  reset();
+                }}
+              >
+                {t("change_phone")}
+              </button>
+            ) : null}
+          </div>
+        )}
       </div>
     </div>
   );

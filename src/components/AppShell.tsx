@@ -11,6 +11,7 @@ import {
   Moon,
   Plug,
   ScrollText,
+  Settings as SettingsIcon,
   ShieldCheck,
   Sun,
 } from "lucide-react";
@@ -30,6 +31,7 @@ const NAV = [
   { to: "/storage", key: "nav_storage", icon: Cloud },
   { to: "/access", key: "nav_access", icon: ShieldCheck },
   { to: "/audit", key: "nav_audit", icon: ScrollText },
+  { to: "/settings", key: "nav_settings", icon: SettingsIcon },
 ] as const;
 
 export function AppShell({
