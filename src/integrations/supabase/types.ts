@@ -50,36 +50,6 @@ export type Database = {
         }
         Relationships: []
       }
-      adp_login_otp: {
-        Row: {
-          attempts: number
-          code_hash: string
-          consumed: boolean
-          created_at: string
-          expires_at: string
-          id: string
-          phone: string
-        }
-        Insert: {
-          attempts?: number
-          code_hash: string
-          consumed?: boolean
-          created_at?: string
-          expires_at: string
-          id?: string
-          phone: string
-        }
-        Update: {
-          attempts?: number
-          code_hash?: string
-          consumed?: boolean
-          created_at?: string
-          expires_at?: string
-          id?: string
-          phone?: string
-        }
-        Relationships: []
-      }
       adp_profiles: {
         Row: {
           created_at: string
@@ -1139,30 +1109,6 @@ export type Database = {
         }
         Relationships: []
       }
-      login_otp: {
-        Row: {
-          code: string
-          created_at: string | null
-          expires_at: string
-          id: string
-          phone: string
-        }
-        Insert: {
-          code: string
-          created_at?: string | null
-          expires_at: string
-          id?: string
-          phone: string
-        }
-        Update: {
-          code?: string
-          created_at?: string | null
-          expires_at?: string
-          id?: string
-          phone?: string
-        }
-        Relationships: []
-      }
       maintenance_requests: {
         Row: {
           actual_cost: number | null
@@ -1697,39 +1643,6 @@ export type Database = {
             referencedColumns: ["project_id", "id"]
           },
         ]
-      }
-      profiles: {
-        Row: {
-          city: string | null
-          created_at: string | null
-          full_name: string | null
-          id: string
-          phone: string | null
-          shop_address: string | null
-          shop_name: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          city?: string | null
-          created_at?: string | null
-          full_name?: string | null
-          id: string
-          phone?: string | null
-          shop_address?: string | null
-          shop_name?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          city?: string | null
-          created_at?: string | null
-          full_name?: string | null
-          id?: string
-          phone?: string | null
-          shop_address?: string | null
-          shop_name?: string | null
-          updated_at?: string | null
-        }
-        Relationships: []
       }
       project_comments: {
         Row: {
@@ -2437,6 +2350,320 @@ export type Database = {
         }
         Relationships: []
       }
+      storage_object_locations: {
+        Row: {
+          availability: string
+          bucket: string | null
+          created_at: string
+          endpoint_id: string | null
+          etag: string | null
+          id: string
+          is_primary: boolean
+          last_verified_at: string | null
+          location_kind: string
+          location_role: string
+          object_id: string
+          object_key: string | null
+          physical_locator: string
+          sha256: string | null
+          size_bytes: number | null
+          updated_at: string
+        }
+        Insert: {
+          availability?: string
+          bucket?: string | null
+          created_at?: string
+          endpoint_id?: string | null
+          etag?: string | null
+          id?: string
+          is_primary?: boolean
+          last_verified_at?: string | null
+          location_kind?: string
+          location_role?: string
+          object_id: string
+          object_key?: string | null
+          physical_locator: string
+          sha256?: string | null
+          size_bytes?: number | null
+          updated_at?: string
+        }
+        Update: {
+          availability?: string
+          bucket?: string | null
+          created_at?: string
+          endpoint_id?: string | null
+          etag?: string | null
+          id?: string
+          is_primary?: boolean
+          last_verified_at?: string | null
+          location_kind?: string
+          location_role?: string
+          object_id?: string
+          object_key?: string | null
+          physical_locator?: string
+          sha256?: string | null
+          size_bytes?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "storage_object_locations_endpoint_id_fkey"
+            columns: ["endpoint_id"]
+            isOneToOne: false
+            referencedRelation: "storage_endpoints"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "storage_object_locations_object_id_fkey"
+            columns: ["object_id"]
+            isOneToOne: false
+            referencedRelation: "storage_object_resolution"
+            referencedColumns: ["object_id"]
+          },
+          {
+            foreignKeyName: "storage_object_locations_object_id_fkey"
+            columns: ["object_id"]
+            isOneToOne: false
+            referencedRelation: "storage_objects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      storage_objects: {
+        Row: {
+          content_class: string | null
+          created_at: string
+          created_by: string | null
+          current_project_id: string | null
+          current_request_id: string | null
+          display_name: string
+          extension: string | null
+          id: string
+          metadata: Json
+          mime_type: string | null
+          object_code: string
+          origin_project_id: string | null
+          origin_request_id: string | null
+          original_filename: string | null
+          sha256: string | null
+          size_bytes: number | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          content_class?: string | null
+          created_at?: string
+          created_by?: string | null
+          current_project_id?: string | null
+          current_request_id?: string | null
+          display_name: string
+          extension?: string | null
+          id?: string
+          metadata?: Json
+          mime_type?: string | null
+          object_code?: string
+          origin_project_id?: string | null
+          origin_request_id?: string | null
+          original_filename?: string | null
+          sha256?: string | null
+          size_bytes?: number | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          content_class?: string | null
+          created_at?: string
+          created_by?: string | null
+          current_project_id?: string | null
+          current_request_id?: string | null
+          display_name?: string
+          extension?: string | null
+          id?: string
+          metadata?: Json
+          mime_type?: string | null
+          object_code?: string
+          origin_project_id?: string | null
+          origin_request_id?: string | null
+          original_filename?: string | null
+          sha256?: string | null
+          size_bytes?: number | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "storage_objects_current_project_id_fkey"
+            columns: ["current_project_id"]
+            isOneToOne: false
+            referencedRelation: "storage_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "storage_objects_current_request_id_fkey"
+            columns: ["current_request_id"]
+            isOneToOne: false
+            referencedRelation: "storage_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "storage_objects_origin_project_id_fkey"
+            columns: ["origin_project_id"]
+            isOneToOne: false
+            referencedRelation: "storage_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "storage_objects_origin_request_id_fkey"
+            columns: ["origin_request_id"]
+            isOneToOne: false
+            referencedRelation: "storage_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      storage_projects: {
+        Row: {
+          canonical_uri: string
+          client_name: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          name: string
+          origin_request_id: string
+          project_code: string
+          promoted_at: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          canonical_uri: string
+          client_name?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name: string
+          origin_request_id: string
+          project_code?: string
+          promoted_at?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          canonical_uri?: string
+          client_name?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name?: string
+          origin_request_id?: string
+          project_code?: string
+          promoted_at?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "storage_projects_origin_request_id_fkey"
+            columns: ["origin_request_id"]
+            isOneToOne: true
+            referencedRelation: "storage_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      storage_promotions: {
+        Row: {
+          created_at: string
+          id: string
+          payment_amount: number
+          payment_currency: string
+          payment_received_at: string
+          payment_reference: string
+          payment_verified_at: string
+          project_id: string
+          request_id: string
+          verification_source: string
+          verified_by: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          payment_amount: number
+          payment_currency?: string
+          payment_received_at: string
+          payment_reference: string
+          payment_verified_at?: string
+          project_id: string
+          request_id: string
+          verification_source: string
+          verified_by?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          payment_amount?: number
+          payment_currency?: string
+          payment_received_at?: string
+          payment_reference?: string
+          payment_verified_at?: string
+          project_id?: string
+          request_id?: string
+          verification_source?: string
+          verified_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "storage_promotions_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: true
+            referencedRelation: "storage_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "storage_promotions_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: true
+            referencedRelation: "storage_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      storage_requests: {
+        Row: {
+          client_name: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          name: string
+          notes: string | null
+          request_code: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          client_name?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name: string
+          notes?: string | null
+          request_code?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          client_name?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name?: string
+          notes?: string | null
+          request_code?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       subscriptions: {
         Row: {
           branches_count: number | null
@@ -2625,24 +2852,6 @@ export type Database = {
           variables_count?: number | null
           wa_template_code?: string
           wa_template_name?: string
-        }
-        Relationships: []
-      }
-      user_roles: {
-        Row: {
-          id: string
-          role: string
-          user_id: string
-        }
-        Insert: {
-          id?: string
-          role?: string
-          user_id: string
-        }
-        Update: {
-          id?: string
-          role?: string
-          user_id?: string
         }
         Relationships: []
       }
@@ -3031,8 +3240,34 @@ export type Database = {
           },
         ]
       }
+      storage_object_resolution: {
+        Row: {
+          availability: string | null
+          bucket: string | null
+          endpoint_id: string | null
+          is_primary: boolean | null
+          last_verified_at: string | null
+          location_id: string | null
+          location_kind: string | null
+          location_role: string | null
+          object_code: string | null
+          object_id: string | null
+          object_key: string | null
+          physical_locator: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "storage_object_locations_endpoint_id_fkey"
+            columns: ["endpoint_id"]
+            isOneToOne: false
+            referencedRelation: "storage_endpoints"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
+      can_manage_storage: { Args: never; Returns: boolean }
       generate_quotation_number: { Args: never; Returns: string }
       get_active_subscriptions: {
         Args: { user_id: string }
@@ -3061,6 +3296,9 @@ export type Database = {
         Returns: boolean
       }
       is_admin: { Args: never; Returns: boolean }
+      next_storage_object_code: { Args: never; Returns: string }
+      next_storage_project_code: { Args: never; Returns: string }
+      next_storage_request_code: { Args: never; Returns: string }
       pn_create_project: {
         Args: { project_description?: string; project_name: string }
         Returns: {
@@ -3078,6 +3316,40 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      promote_storage_request: {
+        Args: {
+          _payment_amount: number
+          _payment_currency?: string
+          _payment_received_at: string
+          _payment_reference: string
+          _request_id: string
+          _verification_source?: string
+        }
+        Returns: {
+          canonical_uri: string
+          project_code: string
+          project_id: string
+        }[]
+      }
+      register_storage_server_object: {
+        Args: {
+          _content_class: string
+          _context_id: string
+          _context_type: string
+          _display_name: string
+          _extension: string
+          _mime_type: string
+          _object_code: string
+          _original_filename: string
+          _sha256: string
+          _size_bytes: number
+        }
+        Returns: {
+          object_code: string
+          object_id: string
+        }[]
+      }
+      reserve_storage_object_code: { Args: never; Returns: string }
     }
     Enums: {
       app_role:
