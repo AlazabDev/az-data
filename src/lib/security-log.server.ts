@@ -1,4 +1,5 @@
-type RpcClient = { rpc: (fn: string, args: Record<string, unknown>) => Promise<{ error: unknown }> };
+/* eslint-disable @typescript-eslint/no-explicit-any */
+type RpcClient = { rpc: (fn: any, args?: any) => any };
 
 /**
  * Server-side security audit trail writer. Never throws — logging must not
@@ -18,7 +19,7 @@ export async function recordSecurityEvent(
   },
 ) {
   try {
-    const { error } = await supabase.rpc("log_security_event", {
+    const { error } = await supabase.rpc("log_security_event" as any, {
       _category: input.category,
       _event_type: input.eventType,
       _status: input.status ?? "success",
