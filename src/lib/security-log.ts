@@ -21,12 +21,12 @@ export async function logSecurityEvent(input: {
       _category: input.category,
       _event_type: input.eventType,
       _status: input.status ?? "success",
-      _actor_email: input.actorEmail ?? null,
-      _description: input.description ?? null,
+      _actor_email: input.actorEmail ?? undefined,
+      _description: input.description ?? undefined,
       _detail: (input.detail ?? {}) as never,
-      _ip_address: null,
-      _user_agent: typeof navigator === "undefined" ? null : navigator.userAgent,
+      _user_agent: typeof navigator === "undefined" ? undefined : navigator.userAgent,
     });
+
   } catch (e) {
     console.warn("[security-log] failed to record event", e);
   }
