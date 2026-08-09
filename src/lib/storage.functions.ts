@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { recordSecurityEvent } from "@/lib/security-log.server";
 
 const keySchema = z.string().trim().min(1).max(120);
 const bucketSchema = z.string().trim().min(1).max(255).regex(/^[a-zA-Z0-9._-]+$/);
@@ -105,6 +106,12 @@ export const getStorageDownloadUrl = createServerFn({ method: "POST" })
       key: data.key,
       expiresIn: 900,
     });
+    await recordSecurityEvent(context.supabase, {
+      category: "storage",
+      eventType: "object_download_url",
+      description: `${data.endpoint}/${data.bucket}/${data.key}`,
+      detail: { endpoint: data.endpoint, bucket: data.bucket, key: data.key },
+    });
     return { url, expiresIn: 900 };
   });
 
@@ -123,6 +130,12 @@ export const getStorageUploadUrl = createServerFn({ method: "POST" })
       key: data.key,
       expiresIn: 900,
     });
+    await recordSecurityEvent(context.supabase, {
+      category: "storage",
+      eventType: "object_upload_url",
+      description: `${data.endpoint}/${data.bucket}/${data.key}`,
+      detail: { endpoint: data.endpoint, bucket: data.bucket, key: data.key },
+    });
     return { url, expiresIn: 900 };
   });
 
@@ -136,6 +149,12 @@ export const deleteStorageObject = createServerFn({ method: "POST" })
     const { deleteObject, readCredentials } = await import("@/lib/s3.server");
     const ep = await loadEndpoint(context.supabase, data.endpoint);
     await deleteObject(ep, readCredentials(ep.secret_prefix), data.bucket, data.key);
+    await recordSecurityEvent(context.supabase, {
+      category: "storage",
+      eventType: "object_delete",
+      description: `${data.endpoint}/${data.bucket}/${data.key}`,
+      detail: { endpoint: data.endpoint, bucket: data.bucket, key: data.key },
+    });
     return { ok: true };
   });
 

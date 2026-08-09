@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { recordSecurityEvent } from "@/lib/security-log.server";
 
 const objectCodeSchema = z.string().regex(/^OBJ-[0-9]{4}-[0-9]{2}-[0-9]{6}$/);
 
@@ -116,8 +117,28 @@ export const uploadServerStorageObject = createServerFn({ method: "POST" })
 
     if (registerError) {
       await fs.rm(target, { force: true }).catch(() => undefined);
+      await recordSecurityEvent(context.supabase, {
+        category: "storage",
+        eventType: "server_object_upload",
+        status: "failure",
+        description: registerError.message,
+        detail: { objectCode, contextType: data.contextType, contextId: data.contextId },
+      });
       throw new Error(registerError.message);
     }
+
+    await recordSecurityEvent(context.supabase, {
+      category: "storage",
+      eventType: "server_object_upload",
+      description: `${objectCode} · ${data.displayName}`,
+      detail: {
+        objectCode,
+        contextType: data.contextType,
+        contextId: data.contextId,
+        sizeBytes: data.file.size,
+        sha256: digest,
+      },
+    });
 
     const row = Array.isArray(registered) ? registered[0] : registered;
     return {
@@ -175,6 +196,13 @@ export const downloadServerStorageObject = createServerFn({ method: "POST" })
       .update({ availability: "available", last_verified_at: new Date().toISOString(), sha256: digest })
       .eq("object_id", object.id)
       .eq("location_kind", "server");
+
+    await recordSecurityEvent(context.supabase, {
+      category: "storage",
+      eventType: "server_object_download",
+      description: String(object.object_code ?? data.objectCode),
+      detail: { objectCode: data.objectCode, sizeBytes: object.size_bytes },
+    });
 
     const filename = object.original_filename || object.display_name || data.objectCode;
     const encoded = encodeURIComponent(filename);

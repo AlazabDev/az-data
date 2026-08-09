@@ -11,6 +11,7 @@ import {
   Moon,
   Plug,
   ScrollText,
+  ShieldAlert,
   Settings as SettingsIcon,
   ShieldCheck,
   Sun,
@@ -31,6 +32,7 @@ const NAV = [
   { to: "/storage", key: "nav_storage", icon: Cloud },
   { to: "/access", key: "nav_access", icon: ShieldCheck },
   { to: "/audit", key: "nav_audit", icon: ScrollText },
+  { to: "/security-log", key: "nav_security_log", icon: ShieldAlert },
   { to: "/settings", key: "nav_settings", icon: SettingsIcon },
 ] as const;
 

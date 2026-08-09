@@ -16,6 +16,7 @@ import { Route as DataSourcesRouteImport } from './routes/data-sources'
 import { Route as DatabasesRouteImport } from './routes/databases'
 import { Route as EnvironmentsRouteImport } from './routes/environments'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as SecurityLogRouteImport } from './routes/security-log'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as StorageRouteImport } from './routes/storage'
 import { Route as SystemsIndexRouteImport } from './routes/systems.index'
@@ -56,6 +57,11 @@ const ResetPasswordRoute = ResetPasswordRouteImport.update({
   path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SecurityLogRoute = SecurityLogRouteImport.update({
+  id: '/security-log',
+  path: '/security-log',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
@@ -85,6 +91,7 @@ export interface FileRoutesByFullPath {
   '/databases': typeof DatabasesRoute
   '/environments': typeof EnvironmentsRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/security-log': typeof SecurityLogRoute
   '/settings': typeof SettingsRoute
   '/storage': typeof StorageRoute
   '/systems/$systemId': typeof SystemsSystemIdRoute
@@ -98,6 +105,7 @@ export interface FileRoutesByTo {
   '/databases': typeof DatabasesRoute
   '/environments': typeof EnvironmentsRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/security-log': typeof SecurityLogRoute
   '/settings': typeof SettingsRoute
   '/storage': typeof StorageRoute
   '/systems/$systemId': typeof SystemsSystemIdRoute
@@ -112,6 +120,7 @@ export interface FileRoutesById {
   '/databases': typeof DatabasesRoute
   '/environments': typeof EnvironmentsRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/security-log': typeof SecurityLogRoute
   '/settings': typeof SettingsRoute
   '/storage': typeof StorageRoute
   '/systems/$systemId': typeof SystemsSystemIdRoute
@@ -127,6 +136,7 @@ export interface FileRouteTypes {
     | '/databases'
     | '/environments'
     | '/reset-password'
+    | '/security-log'
     | '/settings'
     | '/storage'
     | '/systems/$systemId'
@@ -140,6 +150,7 @@ export interface FileRouteTypes {
     | '/databases'
     | '/environments'
     | '/reset-password'
+    | '/security-log'
     | '/settings'
     | '/storage'
     | '/systems/$systemId'
@@ -153,6 +164,7 @@ export interface FileRouteTypes {
     | '/databases'
     | '/environments'
     | '/reset-password'
+    | '/security-log'
     | '/settings'
     | '/storage'
     | '/systems/$systemId'
@@ -167,6 +179,7 @@ export interface RootRouteChildren {
   DatabasesRoute: typeof DatabasesRoute
   EnvironmentsRoute: typeof EnvironmentsRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  SecurityLogRoute: typeof SecurityLogRoute
   SettingsRoute: typeof SettingsRoute
   StorageRoute: typeof StorageRoute
   SystemsSystemIdRoute: typeof SystemsSystemIdRoute
@@ -224,6 +237,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/security-log': {
+      id: '/security-log'
+      path: '/security-log'
+      fullPath: '/security-log'
+      preLoaderRoute: typeof SecurityLogRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/settings': {
       id: '/settings'
       path: '/settings'
@@ -263,6 +283,7 @@ const rootRouteChildren: RootRouteChildren = {
   DatabasesRoute: DatabasesRoute,
   EnvironmentsRoute: EnvironmentsRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  SecurityLogRoute: SecurityLogRoute,
   SettingsRoute: SettingsRoute,
   StorageRoute: StorageRoute,
   SystemsSystemIdRoute: SystemsSystemIdRoute,
@@ -271,13 +292,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

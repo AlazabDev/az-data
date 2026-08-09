@@ -1,7 +1,9 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import type { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
+import { logSecurityEvent } from "@/lib/security-log";
 import type { AppRole } from "@/lib/registry-types";
+
 
 type AuthValue = {
   user: User | null;
@@ -63,9 +65,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     canWrite: roles.some((r) => WRITE_ROLES.includes(r)),
     loading,
     signOut: async () => {
+      await logSecurityEvent({
+        category: "auth",
+        eventType: "sign_out",
+        ...(session?.user.email ? { actorEmail: session.user.email } : {}),
+      });
       await supabase.auth.signOut();
       setRoles([]);
     },
+
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

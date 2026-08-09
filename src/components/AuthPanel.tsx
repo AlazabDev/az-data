@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { requestWhatsappOtp, verifyWhatsappOtp } from "@/lib/whatsapp-auth.functions";
 import { passwordPolicyMessage, validatePlatformPassword } from "@/lib/password-policy";
+import { logSecurityEvent } from "@/lib/security-log";
 import { useI18n } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -62,6 +63,19 @@ export function AuthPanel() {
       if (err) {
         setError(friendly(err.message));
         if (err.message.toLowerCase().includes("email not confirmed")) setNeedsConfirm(true);
+        void logSecurityEvent({
+          category: "auth",
+          eventType: "sign_in_password",
+          status: "failure",
+          actorEmail: email.trim().toLowerCase(),
+          description: err.message,
+        });
+      } else {
+        void logSecurityEvent({
+          category: "auth",
+          eventType: "sign_in_password",
+          actorEmail: email.trim().toLowerCase(),
+        });
       }
     } else {
       const { data, error: err } = await supabase.auth.signUp({
@@ -71,6 +85,13 @@ export function AuthPanel() {
       });
       if (err) setError(friendly(err.message));
       else if (!data.session) setMessage(t("check_email"));
+      void logSecurityEvent({
+        category: "auth",
+        eventType: "sign_up",
+        status: err ? "failure" : "success",
+        actorEmail: email.trim().toLowerCase(),
+        ...(err ? { description: err.message } : {}),
+      });
     }
     setBusy(false);
   }
@@ -87,6 +108,13 @@ export function AuthPanel() {
     });
     if (err) setError(friendly(err.message));
     else setMessage(t("reset_link_sent"));
+    void logSecurityEvent({
+      category: "auth",
+      eventType: "password_reset_request",
+      status: err ? "failure" : "success",
+      actorEmail: email.trim().toLowerCase(),
+      ...(err ? { description: err.message } : {}),
+    });
     setBusy(false);
   }
 
@@ -100,12 +128,20 @@ export function AuthPanel() {
     });
     if (err) setError(friendly(err.message));
     else setMessage(t("confirmation_sent"));
+    void logSecurityEvent({
+      category: "auth",
+      eventType: "resend_confirmation",
+      status: err ? "failure" : "success",
+      actorEmail: email.trim().toLowerCase(),
+      ...(err ? { description: err.message } : {}),
+    });
     setBusy(false);
   }
 
   async function onGoogle() {
     setBusy(true);
     reset();
+    void logSecurityEvent({ category: "auth", eventType: "oauth_start", detail: { provider: "google" } });
     const result = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin });
     if (result.error) {
       setError(String(result.error));
@@ -119,6 +155,7 @@ export function AuthPanel() {
   async function onMicrosoft() {
     setBusy(true);
     reset();
+    void logSecurityEvent({ category: "auth", eventType: "oauth_start", detail: { provider: "azure" } });
     const { error: err } = await supabase.auth.signInWithOAuth({
       provider: "azure",
       options: { redirectTo: window.location.origin, scopes: "email openid profile offline_access" },
@@ -136,8 +173,16 @@ export function AuthPanel() {
       await requestWhatsappOtp({ data: { phone: phone.trim() } });
       setOtpSent(true);
       setMessage(t("otp_sent"));
+      void logSecurityEvent({ category: "auth", eventType: "whatsapp_otp_request", detail: { phone: phone.trim() } });
     } catch (e) {
       setError((e as Error).message);
+      void logSecurityEvent({
+        category: "auth",
+        eventType: "whatsapp_otp_request",
+        status: "failure",
+        description: (e as Error).message,
+        detail: { phone: phone.trim() },
+      });
     }
     setBusy(false);
   }
@@ -150,8 +195,22 @@ export function AuthPanel() {
       if (!tokenHash) throw new Error(t("err_otp_session"));
       const { error: err } = await supabase.auth.verifyOtp({ type: "magiclink", token_hash: tokenHash });
       if (err) setError(friendly(err.message));
+      void logSecurityEvent({
+        category: "auth",
+        eventType: "whatsapp_otp_verify",
+        status: err ? "failure" : "success",
+        detail: { phone: phone.trim() },
+        ...(err ? { description: err.message } : {}),
+      });
     } catch (e) {
       setError((e as Error).message);
+      void logSecurityEvent({
+        category: "auth",
+        eventType: "whatsapp_otp_verify",
+        status: "failure",
+        description: (e as Error).message,
+        detail: { phone: phone.trim() },
+      });
     }
     setBusy(false);
   }
