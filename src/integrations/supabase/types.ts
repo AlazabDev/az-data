@@ -74,6 +74,48 @@ export type Database = {
         }
         Relationships: []
       }
+      adp_security_events: {
+        Row: {
+          actor_email: string | null
+          actor_id: string | null
+          category: string
+          created_at: string
+          description: string | null
+          detail: Json
+          event_type: string
+          id: string
+          ip_address: string | null
+          status: string
+          user_agent: string | null
+        }
+        Insert: {
+          actor_email?: string | null
+          actor_id?: string | null
+          category: string
+          created_at?: string
+          description?: string | null
+          detail?: Json
+          event_type: string
+          id?: string
+          ip_address?: string | null
+          status?: string
+          user_agent?: string | null
+        }
+        Update: {
+          actor_email?: string | null
+          actor_id?: string | null
+          category?: string
+          created_at?: string
+          description?: string | null
+          detail?: Json
+          event_type?: string
+          id?: string
+          ip_address?: string | null
+          status?: string
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       adp_settings: {
         Row: {
           created_at: string
@@ -3296,6 +3338,19 @@ export type Database = {
         Returns: boolean
       }
       is_admin: { Args: never; Returns: boolean }
+      log_security_event: {
+        Args: {
+          _actor_email?: string
+          _category: string
+          _description?: string
+          _detail?: Json
+          _event_type: string
+          _ip_address?: string
+          _status?: string
+          _user_agent?: string
+        }
+        Returns: string
+      }
       next_storage_object_code: { Args: never; Returns: string }
       next_storage_project_code: { Args: never; Returns: string }
       next_storage_request_code: { Args: never; Returns: string }
